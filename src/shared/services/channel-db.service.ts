@@ -36,7 +36,7 @@ export interface Video {
   thumbnail?: string;
   uploadDate?: string;
   publishedAt?: string;
-  duration?: number;
+  duration?: number | null;
 }
 
 @Injectable()
