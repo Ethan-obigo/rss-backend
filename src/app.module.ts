@@ -5,6 +5,7 @@ import { RssModule } from './modules/rss/rss.module';
 import { PodbbangModule } from './modules/podbbang/podbbang.module';
 import { SpotifyModule } from './modules/spotify/spotify.module';
 import { YoutubeModule } from './modules/youtube/youtube.module';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { YoutubeModule } from './modules/youtube/youtube.module';
     SpotifyModule,
     YoutubeModule,
   ],
-  controllers: [],
+  controllers: [AppController],
   providers: [],
 })
 export class AppModule {}
