@@ -78,6 +78,11 @@ export class ChannelController {
         ...channelInfo,
         id: `podbbang_${channelId}`,
         type: 'podbbang',
+        category: null,
+        content_type: null,
+        publisher: channelInfo.author,
+        host: channelInfo.author,
+        tags: [],
       };
 
       const channel = await this.channelDbService.addChannel(channelData);
@@ -143,6 +148,11 @@ export class ChannelController {
         ...channelInfo,
         id: `spotify_${channelInfo.id}`,
         type: 'spotify',
+        category: null,
+        content_type: null,
+        publisher: channelInfo.author,
+        host: channelInfo.author,
+        tags: [],
       };
 
       const channel = await this.channelDbService.addChannel(channelData);
