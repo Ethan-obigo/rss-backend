@@ -24,6 +24,31 @@ interface YtDlpVideoInfo {
   categories?: string[];
 }
 
+/**
+ * YouTube의 YYYYMMDD 형식을 ISO 8601 형식으로 변환
+ * @param dateStr - YYYYMMDD 형식의 날짜 문자열 (예: "20250702")
+ * @returns ISO 8601 형식의 날짜 문자열
+ */
+function parseYouTubeDate(dateStr: string | undefined): string {
+  if (!dateStr || dateStr.length !== 8) {
+    return new Date().toISOString();
+  }
+
+  const year = dateStr.substring(0, 4);
+  const month = dateStr.substring(4, 6);
+  const day = dateStr.substring(6, 8);
+
+  // YYYY-MM-DD 형식으로 변환 후 Date 객체 생성
+  const date = new Date(`${year}-${month}-${day}T00:00:00Z`);
+
+  // 유효한 날짜인지 확인
+  if (isNaN(date.getTime())) {
+    return new Date().toISOString();
+  }
+
+  return date.toISOString();
+}
+
 @Injectable()
 export class YoutubeService {
   private s3Client: S3Client;
@@ -142,7 +167,7 @@ export class YoutubeService {
             description: info.description || null,
             thumbnail: info.thumbnail,
             author: info.uploader || info.channel || 'Unknown',
-            publishedAt: info.upload_date || new Date().toISOString(),
+            publishedAt: parseYouTubeDate(info.upload_date),
             audioUrl: '',
             audioSize: 0,
             duration: info.duration || 0,
