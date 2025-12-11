@@ -33,20 +33,9 @@ export class RssService {
       itunesType: 'episodic',
       itunesCategory: channelInfo.category
         ? [{ text: channelInfo.category }]
-        : undefined,
+        : [{ text: 'Society & Culture' }], // 기본 카테고리 설정
       pubDate: new Date(),
       ttl: 60,
-      customElements: [
-        { 'channel:type': channelInfo.contentType || channelInfo.type },
-        { 'channel:category': channelInfo.category || '기타' },
-        {
-          'channel:publisher':
-            channelInfo.publisher || channelInfo.author || 'Unknown',
-        },
-        { 'channel:host': channelInfo.host || channelInfo.author || 'Unknown' },
-        { 'channel:addedAt': channelInfo.addedAt },
-        ...(channelInfo.tags || []).map((tag) => ({ 'channel:tag': tag })),
-      ],
     });
 
     videos.forEach((video) => {
@@ -68,7 +57,6 @@ export class RssService {
           size: number;
         };
         itunesDuration?: number;
-        customElements?: Array<{ [key: string]: string }>;
       } = {
         title: video.title,
         description: video.description || video.title,
@@ -97,15 +85,6 @@ export class RssService {
       if (video.duration) {
         item.itunesDuration = video.duration;
       }
-
-      // 에피소드 커스텀 메타데이터 추가
-      item.customElements = [
-        { 'episode:id': video.id },
-        { 'episode:publishedAt': video.publishedAt || video.uploadDate || '' },
-        { 'episode:type': video.contentType || '기타' },
-        { 'episode:channelName': channelInfo.title },
-        ...(video.tags || []).map((tag) => ({ 'episode:tag': tag })),
-      ];
 
       feed.addItem(item);
     });
