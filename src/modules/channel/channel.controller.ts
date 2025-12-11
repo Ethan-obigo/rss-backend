@@ -12,7 +12,7 @@ import { ChannelDbService } from '../../shared/services/channel-db.service';
 import { PodbbangService } from '../podbbang/podbbang.service';
 import { SpotifyService } from '../spotify/spotify.service';
 
-@Controller('')
+@Controller('api')
 export class ChannelController {
   constructor(
     private readonly channelDbService: ChannelDbService,
