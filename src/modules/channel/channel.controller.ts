@@ -85,17 +85,16 @@ export class ChannelController {
         tags: [],
       };
 
-      const channel = await this.channelDbService.addChannel(channelData);
+      await this.channelDbService.addChannel(channelData);
 
       await this.channelDbService.updateChannelVideos(
         `podbbang_${channelId}`,
         episodes,
       );
 
+      const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
       return {
-        success: true,
-        channel,
-        episodes: episodes.length,
+        rssUrl: `${baseUrl}/rss/podbbang_${channelId}`,
       };
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
@@ -155,16 +154,15 @@ export class ChannelController {
         tags: [],
       };
 
-      const channel = await this.channelDbService.addChannel(channelData);
+      await this.channelDbService.addChannel(channelData);
       await this.channelDbService.updateChannelVideos(
         `spotify_${channelInfo.id}`,
         episodes,
       );
 
+      const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
       return {
-        success: true,
-        channel,
-        episodes: episodes.length,
+        rssUrl: `${baseUrl}/rss/spotify_${channelInfo.id}`,
       };
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
