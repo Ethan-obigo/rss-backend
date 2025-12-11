@@ -179,7 +179,7 @@ export class YoutubeService {
     videoId: string,
     videoUrl: string,
   ): Promise<{ url: string; size: number }> {
-    const audioName = `${videoId}.mp3`;
+    const audioName = `${process.env.DOWNLOAD_FOLDER}/${videoId}.mp3`;
 
     try {
       const audioStream = this.getAudioStream(videoUrl);
