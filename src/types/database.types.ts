@@ -25,6 +25,11 @@ export interface Database {
           language: string;
           added_at: string;
           last_update: string | null;
+          category: string | null;
+          content_type: string | null;
+          publisher: string | null;
+          host: string | null;
+          tags: Json | null;
         };
         Insert: {
           id: string;
@@ -41,6 +46,11 @@ export interface Database {
           language?: string;
           added_at?: string;
           last_update?: string | null;
+          category?: string | null;
+          content_type?: string | null;
+          publisher?: string | null;
+          host?: string | null;
+          tags?: Json | null;
         };
         Update: {
           id?: string;
@@ -57,6 +67,11 @@ export interface Database {
           language?: string;
           added_at?: string;
           last_update?: string | null;
+          category?: string | null;
+          content_type?: string | null;
+          publisher?: string | null;
+          host?: string | null;
+          tags?: Json | null;
         };
         Relationships: [];
       };

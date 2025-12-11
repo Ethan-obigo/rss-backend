@@ -25,6 +25,11 @@ export interface Channel {
     email: string;
   };
   language: string;
+  category?: string;
+  contentType?: string;
+  publisher?: string;
+  host?: string;
+  tags?: string[];
 }
 
 export interface Video {
@@ -38,6 +43,8 @@ export interface Video {
   uploadDate?: string;
   publishedAt?: string;
   duration?: number | null;
+  tags?: string[];
+  contentType?: string;
 }
 
 @Injectable()
@@ -77,6 +84,11 @@ export class ChannelDbService {
       language: channel.language || 'ko',
       added_at: new Date().toISOString(),
       last_update: null,
+      category: (channel.category ?? null) as string | null,
+      content_type: (channel.content_type ?? null) as string | null,
+      publisher: (channel.publisher ?? null) as string | null,
+      host: (channel.host ?? null) as string | null,
+      tags: (channel.tags ?? null) as Json | null,
     };
 
     const { data, error } = await supabase
@@ -202,6 +214,11 @@ export class ChannelDbService {
       copyright: data.copyright || undefined,
       owner: data.owner as unknown as Channel['owner'],
       language: data.language,
+      category: (data.category as string | null) || undefined,
+      contentType: (data.content_type as string | null) || undefined,
+      publisher: (data.publisher as string | null) || undefined,
+      host: (data.host as string | null) || undefined,
+      tags: (data.tags as unknown as string[]) || undefined,
     };
   }
 }

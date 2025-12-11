@@ -18,17 +18,35 @@ export class RssService {
       author: channelInfo.author || channelInfo.copyright || 'Unknown',
       copyright: channelInfo.copyright || channelInfo.author || '',
       language: channelInfo.language || 'ko',
-      itunesAuthor: channelInfo.author || channelInfo.copyright || 'Unknown',
+      itunesAuthor: channelInfo.host || channelInfo.author || 'Unknown',
       itunesOwner: {
-        name: channelInfo.owner?.name || channelInfo.author || 'Unknown',
+        name:
+          channelInfo.owner?.name ||
+          channelInfo.host ||
+          channelInfo.author ||
+          'Unknown',
         email: channelInfo.owner?.email || 'noreply@example.com',
       },
       itunesSummary: channelInfo.summary || channelInfo.description || '',
       itunesImage: channelInfo.thumbnail || '',
       itunesExplicit: false,
       itunesType: 'episodic',
+      itunesCategory: channelInfo.category
+        ? [{ text: channelInfo.category }]
+        : undefined,
       pubDate: new Date(),
       ttl: 60,
+      customElements: [
+        { 'channel:type': channelInfo.contentType || channelInfo.type },
+        { 'channel:category': channelInfo.category || '기타' },
+        {
+          'channel:publisher':
+            channelInfo.publisher || channelInfo.author || 'Unknown',
+        },
+        { 'channel:host': channelInfo.host || channelInfo.author || 'Unknown' },
+        { 'channel:addedAt': channelInfo.addedAt },
+        ...(channelInfo.tags || []).map((tag) => ({ 'channel:tag': tag })),
+      ],
     });
 
     videos.forEach((video) => {
@@ -50,13 +68,14 @@ export class RssService {
           size: number;
         };
         itunesDuration?: number;
+        customElements?: Array<{ [key: string]: string }>;
       } = {
         title: video.title,
         description: video.description || video.title,
         url: video.url,
         guid: video.id,
         date: video.publishedAt || video.uploadDate || new Date(),
-        itunesAuthor: channelInfo.author || channelInfo.copyright || 'Unknown',
+        itunesAuthor: channelInfo.host || channelInfo.author || 'Unknown',
         itunesExplicit: false,
         itunesSubtitle: video.title,
         itunesSummary: video.description || video.title,
@@ -78,6 +97,15 @@ export class RssService {
       if (video.duration) {
         item.itunesDuration = video.duration;
       }
+
+      // 에피소드 커스텀 메타데이터 추가
+      item.customElements = [
+        { 'episode:id': video.id },
+        { 'episode:publishedAt': video.publishedAt || video.uploadDate || '' },
+        { 'episode:type': video.contentType || '기타' },
+        { 'episode:channelName': channelInfo.title },
+        ...(video.tags || []).map((tag) => ({ 'episode:tag': tag })),
+      ];
 
       feed.addItem(item);
     });

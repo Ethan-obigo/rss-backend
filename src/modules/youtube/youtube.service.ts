@@ -20,6 +20,8 @@ interface YtDlpVideoInfo {
   channel?: string;
   upload_date?: string;
   duration?: number;
+  tags?: string[];
+  categories?: string[];
 }
 
 @Injectable()
@@ -144,6 +146,8 @@ export class YoutubeService {
             audioUrl: '',
             audioSize: 0,
             duration: info.duration || 0,
+            tags: info.tags || [],
+            category: info.categories?.[0] || undefined,
           });
         } catch (error) {
           reject(
@@ -255,6 +259,8 @@ export class YoutubeService {
       publishedAt: videoInfo.publishedAt,
       uploadDate: videoInfo.publishedAt,
       duration: videoInfo.duration,
+      tags: videoInfo.tags || [],
+      contentType: videoInfo.category || '기타',
     };
   }
 
@@ -333,10 +339,32 @@ export class YoutubeService {
   }
 
   /**
+   * 비디오들로부터 채널 태그 및 카테고리 집계
+   */
+  private aggregateMetadata(videos: VideoInfo[]): {
+    tags: string[];
+    category: string | null;
+    contentType: string | null;
+  } {
+    const allTags = new Set<string>();
+
+    videos.forEach((video) => {
+      video.tags?.forEach((tag) => allTags.add(tag));
+    });
+
+    return {
+      tags: Array.from(allTags).slice(0, 10),
+      category: null,
+      contentType: null,
+    };
+  }
+
+  /**
    * YouTube URL 처리 후 DB에 저장하고 RSS URL 반환
    */
   async processAndSave(url: string, baseUrl: string): Promise<string> {
     const result = await this.makeUrl(url);
+    const metadata = this.aggregateMetadata(result.videos);
 
     // 단일 비디오인 경우 채널 정보 생성
     if (result.type === 'video' && result.videos.length > 0) {
@@ -355,6 +383,11 @@ export class YoutubeService {
         description: firstVideo.description || undefined,
         author: firstVideo.author,
         language: 'ko',
+        category: metadata.category,
+        content_type: metadata.contentType,
+        publisher: firstVideo.author,
+        host: firstVideo.author,
+        tags: metadata.tags as unknown as Json,
       });
 
       return `${baseUrl}/rss/${channelId}`;
@@ -376,6 +409,11 @@ export class YoutubeService {
         description: result.channelInfo.description,
         author: result.channelInfo.author,
         language: 'ko',
+        category: metadata.category,
+        content_type: metadata.contentType,
+        publisher: result.channelInfo.author,
+        host: result.channelInfo.author,
+        tags: metadata.tags as unknown as Json,
       });
 
       return `${baseUrl}/rss/${channelId}`;

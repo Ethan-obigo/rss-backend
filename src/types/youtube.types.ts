@@ -8,4 +8,6 @@ export interface VideoInfo {
   audioUrl: string;
   audioSize?: number;
   duration: number;
+  tags?: string[];
+  category?: string;
 }
