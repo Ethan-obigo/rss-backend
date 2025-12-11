@@ -4,6 +4,7 @@ import { ChannelModule } from './modules/channel/channel.module';
 import { RssModule } from './modules/rss/rss.module';
 import { PodbbangModule } from './modules/podbbang/podbbang.module';
 import { SpotifyModule } from './modules/spotify/spotify.module';
+import { YoutubeModule } from './modules/youtube/youtube.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { SpotifyModule } from './modules/spotify/spotify.module';
     RssModule,
     PodbbangModule,
     SpotifyModule,
+    YoutubeModule,
   ],
   controllers: [],
   providers: [],

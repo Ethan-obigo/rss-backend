@@ -33,6 +33,7 @@ export interface Video {
   description?: string;
   url: string;
   audioPath?: string;
+  audioSize?: number;
   thumbnail?: string;
   uploadDate?: string;
   publishedAt?: string;

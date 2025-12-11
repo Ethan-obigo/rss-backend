@@ -21,9 +21,266 @@
   <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
+## 프로젝트 설명
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+팟캐스트 RSS 피드 생성기 - Spotify, 팟빵, YouTube 콘텐츠를 iTunes 호환 RSS 피드로 변환합니다.
+
+## API 문서
+
+Base URL: `http://localhost:3000` (개발 환경)
+
+### 📻 Spotify
+
+#### Spotify 쇼 처리
+Spotify 팟캐스트 쇼를 RSS 피드로 변환합니다.
+
+```http
+POST /api/spotify/show
+Content-Type: application/json
+
+{
+  "showId": "spotify_show_id"
+}
+```
+
+**응답:**
+```json
+{
+  "rssUrl": "http://localhost:3000/rss/spotify-{showId}"
+}
+```
+
+#### Spotify 쇼 업데이트
+기존 Spotify 쇼의 에피소드를 업데이트합니다.
+
+```http
+POST /api/spotify/update/:showId
+```
+
+**응답:**
+```json
+{
+  "rssUrl": "http://localhost:3000/rss/spotify-{showId}"
+}
+```
+
+---
+
+### 🎙️ 팟빵
+
+#### 팟빵 채널 처리
+팟빵 팟캐스트 채널을 RSS 피드로 변환합니다.
+
+```http
+POST /api/podbbang/channel
+Content-Type: application/json
+
+{
+  "channelId": "podbbang_channel_id"
+}
+```
+
+**응답:**
+```json
+{
+  "rssUrl": "http://localhost:3000/rss/podbbang-{channelId}"
+}
+```
+
+#### 팟빵 채널 업데이트
+기존 팟빵 채널의 에피소드를 업데이트합니다.
+
+```http
+POST /api/podbbang/update/:channelId
+```
+
+**응답:**
+```json
+{
+  "rssUrl": "http://localhost:3000/rss/podbbang-{channelId}"
+}
+```
+
+---
+
+### 🎥 YouTube
+
+#### YouTube URL 처리
+YouTube 비디오, 플레이리스트, 채널을 오디오 추출과 함께 RSS 피드로 변환합니다.
+
+```http
+POST /youtube/process
+Content-Type: application/json
+
+{
+  "url": "https://www.youtube.com/watch?v=VIDEO_ID"
+}
+```
+
+또는
+
+```json
+{
+  "url": "https://www.youtube.com/playlist?list=PLAYLIST_ID"
+}
+```
+
+**응답:**
+```json
+{
+  "rssUrl": "http://localhost:3000/rss/youtube-{id}"
+}
+```
+
+**기능:**
+- 비디오에서 오디오 추출
+- Cloudflare R2에 업로드
+- 단일 비디오, 플레이리스트, 채널 지원
+- 요청 제한 (비디오 간 2초 딜레이)
+
+---
+
+### 📡 RSS 피드
+
+#### RSS 피드 가져오기
+모든 채널의 iTunes 호환 RSS 피드를 가져옵니다.
+
+```http
+GET /rss/:channelId
+```
+
+**응답:** XML (application/rss+xml)
+
+**예시:**
+```http
+GET /rss/spotify-abc123
+GET /rss/podbbang-xyz789
+GET /rss/youtube-PLxxxxxx
+```
+
+---
+
+### 📋 채널 관리
+
+#### 모든 채널 조회
+등록된 모든 채널 목록을 가져옵니다.
+
+```http
+GET /api/channels
+```
+
+**응답:**
+```json
+[
+  {
+    "id": "spotify-abc123",
+    "title": "채널 제목",
+    "url": "https://...",
+    "thumbnail": "https://...",
+    "type": "spotify",
+    "videos": [...],
+    "addedAt": "2025-12-11T00:00:00.000Z",
+    "lastUpdate": "2025-12-11T00:00:00.000Z"
+  }
+]
+```
+
+#### 채널 삭제
+채널과 해당 RSS 피드를 삭제합니다.
+
+```http
+DELETE /api/channel/:channelId
+```
+
+**응답:**
+```json
+{
+  "success": true
+}
+```
+
+#### 헬스 체크
+API 상태를 확인합니다.
+
+```http
+GET /api/health
+```
+
+**응답:**
+```json
+{
+  "status": "ok"
+}
+```
+
+---
+
+## 환경 변수
+
+루트 디렉토리에 `.env` 파일을 생성하세요:
+
+```env
+# 서버
+PORT=3000
+BASE_URL=http://localhost:3000
+
+# Supabase
+SUPABASE_URL=your_supabase_url
+SUPABASE_KEY=your_supabase_key
+
+# Cloudflare R2 (YouTube 오디오 저장용)
+R2_ENDPOINT=your_r2_endpoint
+R2_ACCESS_KEY_ID=your_access_key
+R2_SECRET_ACCESS_KEY=your_secret_key
+R2_BUCKET_NAME=your_bucket_name
+R2_PUBLIC_URL=your_public_url
+
+# Spotify API (선택사항, 메타데이터용)
+SPOTIFY_CLIENT_ID=your_client_id
+SPOTIFY_CLIENT_SECRET=your_client_secret
+```
+
+---
+
+## 사용 예제
+
+### JavaScript/TypeScript (프론트엔드)
+
+```typescript
+// YouTube 플레이리스트를 RSS로 변환
+const response = await fetch('http://localhost:3000/youtube/process', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    url: 'https://www.youtube.com/playlist?list=PLxxxxxx'
+  })
+});
+
+const { rssUrl } = await response.json();
+console.log('RSS 피드:', rssUrl);
+// 출력: http://localhost:3000/rss/youtube-PLxxxxxx
+```
+
+### cURL
+
+```bash
+# Spotify
+curl -X POST http://localhost:3000/api/spotify/show \
+  -H "Content-Type: application/json" \
+  -d '{"showId": "abc123"}'
+
+# YouTube
+curl -X POST http://localhost:3000/youtube/process \
+  -H "Content-Type: application/json" \
+  -d '{"url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"}'
+
+# RSS 피드 가져오기
+curl http://localhost:3000/rss/youtube-dQw4w9WgXcQ
+```
+
+---
 
 ## Project setup
 

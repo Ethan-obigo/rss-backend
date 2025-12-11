@@ -47,6 +47,7 @@ export class RssService {
         enclosure?: {
           url: string;
           type: string;
+          size: number;
         };
         itunesDuration?: number;
       } = {
@@ -70,6 +71,7 @@ export class RssService {
         item.enclosure = {
           url: video.audioPath,
           type: 'audio/mpeg',
+          size: video.audioSize || 0,
         };
       }
 
