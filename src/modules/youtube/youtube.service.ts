@@ -446,4 +446,43 @@ export class YoutubeService {
 
     throw new Error('Failed to process YouTube URL');
   }
+
+  /**
+   * 기존 채널 업데이트 - 새로운 영상만 추가
+   */
+  async updateChannel(
+    channelId: string,
+    url: string,
+  ): Promise<{ newEpisodes: number; totalEpisodes: number }> {
+    const existingChannel = await this.channelDbService.getChannel(channelId);
+
+    if (!existingChannel) {
+      throw new Error('Channel not found');
+    }
+
+    const existingVideoIds = new Set(
+      existingChannel.videos.map((v: Video) => v.id),
+    );
+    const result = await this.makeUrl(url);
+    const newVideos = result.videos.filter(
+      (video) => !existingVideoIds.has(video.videoId),
+    );
+
+    if (newVideos.length === 0) {
+      return {
+        newEpisodes: 0,
+        totalEpisodes: existingChannel.videos.length,
+      };
+    }
+
+    const newVideoItems = newVideos.map((v) => this.convertToVideo(v));
+    const updatedVideos = [...newVideoItems, ...existingChannel.videos];
+
+    await this.channelDbService.updateChannelVideos(channelId, updatedVideos);
+
+    return {
+      newEpisodes: newVideos.length,
+      totalEpisodes: updatedVideos.length,
+    };
+  }
 }
