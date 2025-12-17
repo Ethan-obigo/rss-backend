@@ -16,9 +16,6 @@ export class SpotifyService {
     this.SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET || '';
   }
 
-  /**
-   * 스포티파이 API 액세스 토큰을 받아옵니다.
-   */
   private async getSpotifyToken(): Promise<string> {
     const params = new URLSearchParams({
       grant_type: 'client_credentials',
@@ -44,9 +41,6 @@ export class SpotifyService {
     return token;
   }
 
-  /**
-   * 스포티파이 쇼 ID를 URL에서 추출합니다.
-   */
   private extractShowId(url: string): string {
     const match = url.match(/show\/([a-zA-Z0-9]+)/);
     if (!match) {
@@ -55,9 +49,6 @@ export class SpotifyService {
     return match[1];
   }
 
-  /**
-   * 스포티파이 쇼 정보 및 에피소드 정보를 가져옵니다.
-   */
   async fetchSpotifyShow(showUrl: string) {
     try {
       const showId = this.extractShowId(showUrl);
@@ -158,9 +149,6 @@ export class SpotifyService {
     }
   }
 
-  /**
-   * 스포티파이 쇼 정보를 업데이트합니다.
-   */
   async updateSpotifyShow(showUrl: string) {
     const { episodes } = await this.fetchSpotifyShow(showUrl);
     return episodes;

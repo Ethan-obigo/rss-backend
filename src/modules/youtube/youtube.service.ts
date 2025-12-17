@@ -22,11 +22,6 @@ interface YtDlpVideoInfo {
   categories?: string[];
 }
 
-/**
- * YouTube의 YYYYMMDD 형식을 ISO 8601 형식으로 변환
- * @param dateStr - YYYYMMDD 형식의 날짜 문자열 (예: "20250702")
- * @returns ISO 8601 형식의 날짜 문자열
- */
 function parseYouTubeDate(dateStr: string | undefined): string {
   if (!dateStr || dateStr.length !== 8) {
     return new Date().toISOString();
@@ -35,11 +30,8 @@ function parseYouTubeDate(dateStr: string | undefined): string {
   const year = dateStr.substring(0, 4);
   const month = dateStr.substring(4, 6);
   const day = dateStr.substring(6, 8);
-
-  // YYYY-MM-DD 형식으로 변환 후 Date 객체 생성
   const date = new Date(`${year}-${month}-${day}T00:00:00Z`);
 
-  // 유효한 날짜인지 확인
   if (isNaN(date.getTime())) {
     return new Date().toISOString();
   }
@@ -70,9 +62,6 @@ export class YoutubeService {
     });
   }
 
-  /**
-   * URL 타입 판별 (비디오/플레이리스트/채널)
-   */
   private getUrlType(
     url: string,
   ): 'video' | 'playlist' | 'channel' | 'unknown' {
@@ -92,9 +81,6 @@ export class YoutubeService {
     return 'unknown';
   }
 
-  /**
-   * 플레이리스트/채널 정보 및 비디오 ID 가져오기
-   */
   private async getPlaylistInfo(url: string): Promise<{
     channelInfo: {
       id: string;
@@ -128,9 +114,6 @@ export class YoutubeService {
     }
   }
 
-  /**
-   * yt-dlp로 YouTube 영상 정보 가져오기
-   */
   private async getVideoInfo(videoId: string): Promise<VideoInfo> {
     return new Promise((resolve, reject) => {
       const ytdlp = spawn('yt-dlp', [
@@ -183,15 +166,12 @@ export class YoutubeService {
     });
   }
 
-  /**
-   * yt-dlp로 오디오 스트림 가져오기 (stdout)
-   */
   private getAudioStream(videoUrl: string): Readable {
     const ytdlp = spawn('yt-dlp', [
       '-f',
       'bestaudio',
       '-o',
-      '-', // stdout으로 출력
+      '-',
       '--no-playlist',
       videoUrl,
     ]);
@@ -199,9 +179,6 @@ export class YoutubeService {
     return ytdlp.stdout;
   }
 
-  /**
-   * YouTube 영상의 오디오만 cloudflare 저장
-   */
   async uploadAudio(
     videoId: string,
     videoUrl: string,
@@ -240,9 +217,6 @@ export class YoutubeService {
     }
   }
 
-  /**
-   * YouTube 영상의 오디오 추출 및 메타데이터 반환
-   */
   async makeAudioUrl(videoId: string): Promise<VideoInfo> {
     try {
       const videoInfo = await this.getVideoInfo(videoId);
@@ -260,16 +234,10 @@ export class YoutubeService {
     }
   }
 
-  /**
-   * 비디오 ID로 영상 처리 (오디오 추출 및 업로드)
-   */
   private async processVideo(videoId: string): Promise<VideoInfo> {
     return await this.makeAudioUrl(videoId);
   }
 
-  /**
-   * VideoInfo를 Video 타입으로 변환
-   */
   private convertToVideo(videoInfo: VideoInfo): Video {
     return {
       id: videoInfo.videoId,
@@ -287,9 +255,6 @@ export class YoutubeService {
     };
   }
 
-  /**
-   * URL에서 비디오 ID 추출
-   */
   private extractVideoId(url: string): string {
     const patterns = [
       /(?:youtube\.com\/watch\?v=)([^&]+)/,
@@ -343,7 +308,6 @@ export class YoutubeService {
         });
       }
 
-      // 요청 간 딜레이 (rate limit 방지)
       if (i < videoIds.length - 1) {
         await new Promise((resolve) => setTimeout(resolve, 2000));
       }
@@ -361,9 +325,6 @@ export class YoutubeService {
     };
   }
 
-  /**
-   * 비디오들로부터 채널 태그 및 카테고리 집계
-   */
   private aggregateMetadata(videos: VideoInfo[]): {
     tags: string[];
     category: string | null;
@@ -382,14 +343,10 @@ export class YoutubeService {
     };
   }
 
-  /**
-   * YouTube URL 처리 후 DB에 저장하고 RSS URL 반환
-   */
   async processAndSave(url: string, baseUrl: string): Promise<string> {
     const result = await this.makeUrl(url);
     const metadata = this.aggregateMetadata(result.videos);
 
-    // 단일 비디오인 경우 채널 정보 생성
     if (result.type === 'video' && result.videos.length > 0) {
       const firstVideo = result.videos[0];
       const channelId = `youtube-video-${firstVideo.videoId}`;
@@ -416,7 +373,6 @@ export class YoutubeService {
       return `${baseUrl}/rss/${channelId}`;
     }
 
-    // 플레이리스트/채널인 경우
     if (result.channelInfo) {
       const channelId = `youtube-${result.channelInfo.id}`;
 
@@ -445,9 +401,6 @@ export class YoutubeService {
     throw new Error('Failed to process YouTube URL');
   }
 
-  /**
-   * 기존 채널 업데이트 - 새로운 영상만 추가
-   */
   async updateChannel(
     channelId: string,
     url: string,

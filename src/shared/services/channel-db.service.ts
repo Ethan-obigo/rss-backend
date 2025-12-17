@@ -12,9 +12,6 @@ import { Channel, Video } from '../../types/channel.types';
 export class ChannelDbService {
   constructor(private readonly supabaseService: SupabaseService) {}
 
-  /**
-   * 채널 추가
-   */
   async addChannel(
     channel: Omit<ChannelInsert, 'added_at' | 'last_update'>,
   ): Promise<Channel> {
@@ -67,9 +64,6 @@ export class ChannelDbService {
     return this.formatChannel(data);
   }
 
-  /**
-   * 모든 채널 가져오기
-   */
   async getAllChannels(): Promise<Channel[]> {
     const supabase = this.supabaseService.getClient();
 
@@ -86,9 +80,6 @@ export class ChannelDbService {
     return data.map((channel) => this.formatChannel(channel));
   }
 
-  /**
-   * 특정 채널 가져오기
-   */
   async getChannel(channelId: string): Promise<Channel | null> {
     const supabase = this.supabaseService.getClient();
 
@@ -109,9 +100,6 @@ export class ChannelDbService {
     return this.formatChannel(data);
   }
 
-  /**
-   * 채널 영상 목록 업데이트
-   */
   async updateChannelVideos(
     channelId: string,
     videos: Video[],
@@ -138,9 +126,6 @@ export class ChannelDbService {
     return this.formatChannel(data);
   }
 
-  /**
-   * 채널 삭제
-   */
   async deleteChannel(channelId: string): Promise<boolean> {
     const supabase = this.supabaseService.getClient();
 
@@ -157,9 +142,6 @@ export class ChannelDbService {
     return true;
   }
 
-  /**
-   * DB 데이터를 기존 형식으로 변환
-   */
   private formatChannel(data: ChannelRow): Channel {
     return {
       id: data.id,

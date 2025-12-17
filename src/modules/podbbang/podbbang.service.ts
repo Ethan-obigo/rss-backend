@@ -7,9 +7,6 @@ import {
 
 @Injectable()
 export class PodbbangService {
-  /**
-   * HTTPS GET 요청 헬퍼 함수
-   */
   private httpsGet<T>(url: string): Promise<T> {
     return new Promise((resolve, reject) => {
       https
@@ -40,14 +37,9 @@ export class PodbbangService {
     });
   }
 
-  /**
-   * 팟빵 채널 정보 및 에피소드 정보를 가져옵니다.
-   */
   async fetchPodbbangChannel(channelId: string) {
     try {
-      console.log(`Fetching Podbbang channel: ${channelId}`);
       const firstPageUrl = `https://app-api6.podbbang.com/channels/${channelId}/episodes?offset=0&limit=20&sort=desc&episode_id=0&focus_center=0&with=image`;
-      console.log(`Request URL: ${firstPageUrl}`);
       const firstPageData =
         await this.httpsGet<PodbbangEpisodesResponse>(firstPageUrl);
 
@@ -118,7 +110,6 @@ export class PodbbangService {
     } catch (error) {
       console.error('Podbbang fetch error:', error);
 
-      // 팟빵 API 에러 메시지 파싱
       if (error instanceof Error) {
         const errorMessage = error.message;
         if (errorMessage.includes('존재하지 않는 방송')) {
@@ -135,9 +126,6 @@ export class PodbbangService {
     }
   }
 
-  /**
-   * 팟빵 채널 정보를 업데이트합니다.
-   */
   async updatePodbbangChannel(channelId: string) {
     const { episodes } = await this.fetchPodbbangChannel(channelId);
     return episodes;

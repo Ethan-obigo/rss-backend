@@ -4,9 +4,6 @@ import { Channel, Video } from 'src/types/channel.types';
 
 @Injectable()
 export class RssService {
-  /**
-   * iTunes 표준 RSS 피드 생성
-   */
   generateRSS(channelInfo: Channel, videos: Video[], baseUrl: string): string {
     const feed = new Podcast({
       title: channelInfo.title || 'Podcast Channel',
@@ -33,7 +30,7 @@ export class RssService {
       itunesType: 'episodic',
       itunesCategory: channelInfo.category
         ? [{ text: channelInfo.category }]
-        : [{ text: 'Society & Culture' }], // 기본 카테고리 설정
+        : [{ text: 'Society & Culture' }], // 추후 기본값 정의 필요함
       pubDate: new Date(),
       ttl: 60,
     });

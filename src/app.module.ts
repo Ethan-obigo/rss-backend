@@ -7,9 +7,12 @@ import { SpotifyModule } from './modules/spotify/spotify.module';
 import { YoutubeModule } from './modules/youtube/youtube.module';
 import { ApplePodcastsModule } from './modules/apple-podcasts/apple-podcasts.module';
 import { AppController } from './app.controller';
+import { ScheduleModule } from '@nestjs/schedule';
+import { TasksService } from './tasts/tasks.service';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     SharedModule,
     ChannelModule,
     RssModule,
@@ -19,6 +22,6 @@ import { AppController } from './app.controller';
     ApplePodcastsModule,
   ],
   controllers: [AppController],
-  providers: [],
+  providers: [TasksService],
 })
 export class AppModule {}
