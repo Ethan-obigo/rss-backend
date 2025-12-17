@@ -30,6 +30,7 @@ export interface Channel {
   publisher?: string;
   host?: string;
   tags?: string[];
+  externalRssUrl?: string;
 }
 
 export interface Video {
@@ -89,6 +90,7 @@ export class ChannelDbService {
       publisher: (channel.publisher ?? null) as string | null,
       host: (channel.host ?? null) as string | null,
       tags: (channel.tags ?? null) as Json | null,
+      external_rss_url: (channel.external_rss_url ?? null) as string | null,
     };
 
     const { data, error } = await supabase
@@ -219,6 +221,7 @@ export class ChannelDbService {
       publisher: (data.publisher as string | null) || undefined,
       host: (data.host as string | null) || undefined,
       tags: (data.tags as unknown as string[]) || undefined,
+      externalRssUrl: data.external_rss_url || undefined,
     };
   }
 }

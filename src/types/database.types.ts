@@ -30,6 +30,7 @@ export interface Database {
           publisher: string | null;
           host: string | null;
           tags: Json | null;
+          external_rss_url: string | null;
         };
         Insert: {
           id: string;
@@ -51,6 +52,7 @@ export interface Database {
           publisher?: string | null;
           host?: string | null;
           tags?: Json | null;
+          external_rss_url?: string | null;
         };
         Update: {
           id?: string;
@@ -72,6 +74,7 @@ export interface Database {
           publisher?: string | null;
           host?: string | null;
           tags?: Json | null;
+          external_rss_url?: string | null;
         };
         Relationships: [];
       };

@@ -202,11 +202,38 @@ export class ChannelController {
     }
 
     try {
+      // Spotify에서 쇼 정보 가져오기
+      const { channelInfo } =
+        await this.spotifyService.fetchSpotifyShow(spotifyUrl);
+
+      // Apple Podcasts에서 RSS 찾기
       const feedUrl =
         await this.applePodcastsService.getRssFeedFromSpotify(spotifyUrl);
 
+      // Spotify 쇼 ID 추출
+      const showIdMatch = spotifyUrl.match(/show\/([a-zA-Z0-9]+)/);
+      const showId = showIdMatch ? showIdMatch[1] : channelInfo.id;
+      const fullChannelId = `spotify_${showId}`;
+
+      // DB에 채널 저장
+      const channelData = {
+        ...channelInfo,
+        id: fullChannelId,
+        type: 'spotify',
+        category: null,
+        content_type: null,
+        publisher: channelInfo.author,
+        host: channelInfo.author,
+        tags: [],
+        videos: [], // Spotify는 에피소드를 DB에 저장하지 않음
+        external_rss_url: feedUrl, // Apple Podcasts RSS URL 저장
+      };
+
+      await this.channelDbService.addChannel(channelData);
+
       return {
         feedUrl,
+        channelId: fullChannelId,
       };
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
