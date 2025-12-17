@@ -6,8 +6,7 @@ import {
   ChannelRow,
 } from '../../types/database.types';
 import type { Json } from '../../types/database.types';
-import { Channel } from 'diagnostics_channel';
-import { Video } from 'src/types/channel.types';
+import { Channel, Video } from '../../types/channel.types';
 
 @Injectable()
 export class ChannelDbService {
@@ -46,12 +45,12 @@ export class ChannelDbService {
       language: channel.language || 'ko',
       added_at: new Date().toISOString(),
       last_update: null,
-      category: (channel.category ?? null) as string | null,
-      content_type: (channel.content_type ?? null) as string | null,
-      publisher: (channel.publisher ?? null) as string | null,
-      host: (channel.host ?? null) as string | null,
+      category: channel.category ?? null,
+      content_type: channel.content_type ?? null,
+      publisher: channel.publisher ?? null,
+      host: channel.host ?? null,
       tags: (channel.tags ?? null) as Json | null,
-      external_rss_url: (channel.external_rss_url ?? null) as string | null,
+      external_rss_url: channel.external_rss_url ?? null,
     };
 
     const { data, error } = await supabase
@@ -177,10 +176,10 @@ export class ChannelDbService {
       copyright: data.copyright || undefined,
       owner: data.owner as unknown as Channel['owner'],
       language: data.language,
-      category: (data.category as string | null) || undefined,
-      contentType: (data.content_type as string | null) || undefined,
-      publisher: (data.publisher as string | null) || undefined,
-      host: (data.host as string | null) || undefined,
+      category: data.category || undefined,
+      contentType: data.content_type || undefined,
+      publisher: data.publisher || undefined,
+      host: data.host || undefined,
       tags: (data.tags as unknown as string[]) || undefined,
       externalRssUrl: data.external_rss_url || undefined,
     };

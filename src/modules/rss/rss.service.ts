@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { Channel } from 'diagnostics_channel';
 import { Podcast } from 'podcast';
-import { Video } from 'src/types/channel.types';
+import { Channel, Video } from 'src/types/channel.types';
 
 @Injectable()
 export class RssService {
