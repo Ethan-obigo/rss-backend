@@ -11,6 +11,7 @@ import {
 import { ChannelDbService } from '../../shared/services/channel-db.service';
 import { PodbbangService } from '../podbbang/podbbang.service';
 import { SpotifyService } from '../spotify/spotify.service';
+import { ApplePodcastsService } from '../apple-podcasts/apple-podcasts.service';
 
 @Controller('api')
 export class ChannelController {
@@ -18,6 +19,7 @@ export class ChannelController {
     private readonly channelDbService: ChannelDbService,
     private readonly podbbangService: PodbbangService,
     private readonly spotifyService: SpotifyService,
+    private readonly applePodcastsService: ApplePodcastsService,
   ) {}
 
   @Get('health')
@@ -132,41 +134,33 @@ export class ChannelController {
   }
 
   @Post('spotify/show')
-  async addSpotifyShow(@Body() body: { showUrl: string }) {
-    const { showUrl } = body;
+  async addSpotifyShow(
+    @Body() body: { showUrl?: string; spotifyUrl?: string; showId?: string },
+  ) {
+    let url = body.spotifyUrl || body.showUrl;
 
-    if (!showUrl) {
-      throw new HttpException('showUrl is required', HttpStatus.BAD_REQUEST);
+    // showId가 제공된 경우 URL로 변환
+    if (!url && body.showId) {
+      url = `https://open.spotify.com/show/${body.showId}`;
+    }
+
+    if (!url) {
+      throw new HttpException(
+        'spotifyUrl, showUrl, or showId is required',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     try {
-      const { channelInfo, episodes } =
-        await this.spotifyService.fetchSpotifyShow(showUrl);
+      const feedUrl =
+        await this.applePodcastsService.getRssFeedFromSpotify(url);
 
-      const channelData = {
-        ...channelInfo,
-        id: `spotify_${channelInfo.id}`,
-        type: 'spotify',
-        category: null,
-        content_type: null,
-        publisher: channelInfo.author,
-        host: channelInfo.author,
-        tags: [],
-      };
-
-      await this.channelDbService.addChannel(channelData);
-      await this.channelDbService.updateChannelVideos(
-        `spotify_${channelInfo.id}`,
-        episodes,
-      );
-
-      const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
       return {
-        rssUrl: `${baseUrl}/rss/spotify_${channelInfo.id}`,
+        feedUrl,
       };
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
-      throw new HttpException(message, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(message, HttpStatus.NOT_FOUND);
     }
   }
 
@@ -196,6 +190,27 @@ export class ChannelController {
       console.error('Error updating Spotify show:', error);
       const message = error instanceof Error ? error.message : 'Unknown error';
       throw new HttpException(message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Post('spotify/find-rss')
+  async findSpotifyRss(@Body() body: { spotifyUrl: string }) {
+    const { spotifyUrl } = body;
+
+    if (!spotifyUrl) {
+      throw new HttpException('spotifyUrl is required', HttpStatus.BAD_REQUEST);
+    }
+
+    try {
+      const feedUrl =
+        await this.applePodcastsService.getRssFeedFromSpotify(spotifyUrl);
+
+      return {
+        feedUrl,
+      };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new HttpException(message, HttpStatus.NOT_FOUND);
     }
   }
 }

@@ -45,7 +45,9 @@ export class PodbbangService {
    */
   async fetchPodbbangChannel(channelId: string) {
     try {
+      console.log(`Fetching Podbbang channel: ${channelId}`);
       const firstPageUrl = `https://app-api6.podbbang.com/channels/${channelId}/episodes?offset=0&limit=20&sort=desc&episode_id=0&focus_center=0&with=image`;
+      console.log(`Request URL: ${firstPageUrl}`);
       const firstPageData =
         await this.httpsGet<PodbbangEpisodesResponse>(firstPageUrl);
 
@@ -115,6 +117,20 @@ export class PodbbangService {
       };
     } catch (error) {
       console.error('Podbbang fetch error:', error);
+
+      // 팟빵 API 에러 메시지 파싱
+      if (error instanceof Error) {
+        const errorMessage = error.message;
+        if (errorMessage.includes('존재하지 않는 방송')) {
+          throw new Error(
+            `팟빵 채널을 찾을 수 없습니다. 채널 ID를 확인해주세요: ${channelId}`,
+          );
+        }
+        if (errorMessage.includes('HTTP 400')) {
+          throw new Error(`잘못된 채널 ID입니다: ${channelId}`);
+        }
+      }
+
       throw error;
     }
   }

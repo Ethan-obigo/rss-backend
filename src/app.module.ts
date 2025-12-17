@@ -5,6 +5,7 @@ import { RssModule } from './modules/rss/rss.module';
 import { PodbbangModule } from './modules/podbbang/podbbang.module';
 import { SpotifyModule } from './modules/spotify/spotify.module';
 import { YoutubeModule } from './modules/youtube/youtube.module';
+import { ApplePodcastsModule } from './modules/apple-podcasts/apple-podcasts.module';
 import { AppController } from './app.controller';
 
 @Module({
@@ -15,6 +16,7 @@ import { AppController } from './app.controller';
     PodbbangModule,
     SpotifyModule,
     YoutubeModule,
+    ApplePodcastsModule,
   ],
   controllers: [AppController],
   providers: [],
