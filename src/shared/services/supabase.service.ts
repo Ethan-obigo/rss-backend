@@ -16,12 +16,6 @@ export class SupabaseService {
     this.supabase = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY);
   }
 
-  /**
-   * 로컬 파일을 Supabase Storage에 업로드합니다.
-   * @param localFilePath - 로컬 MP3 파일 경로
-   * @param storageFileKey - Supabase 버킷에 저장될 최종 파일 이름 (예: 'episodes/ep168.mp3')
-   * @returns Supabase에 저장된 파일의 공개 URL
-   */
   async uploadToSupabase(
     localFilePath: string,
     storageFileKey: string,

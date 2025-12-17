@@ -5,11 +5,9 @@ import { VideoInfo } from 'src/types/youtube.types';
 import { Readable } from 'stream';
 import { spawn } from 'child_process';
 import ytpl from 'ytpl';
-import {
-  Video,
-  ChannelDbService,
-} from 'src/shared/services/channel-db.service';
+import { ChannelDbService } from 'src/shared/services/channel-db.service';
 import type { Json } from 'src/types/database.types';
+import { Video } from 'src/types/channel.types';
 
 interface YtDlpVideoInfo {
   id: string;

@@ -139,7 +139,6 @@ export class ChannelController {
   ) {
     let url = body.spotifyUrl || body.showUrl;
 
-    // showId가 제공된 경우 URL로 변환
     if (!url && body.showId) {
       url = `https://open.spotify.com/show/${body.showId}`;
     }
@@ -202,20 +201,15 @@ export class ChannelController {
     }
 
     try {
-      // Spotify에서 쇼 정보 가져오기
       const { channelInfo } =
         await this.spotifyService.fetchSpotifyShow(spotifyUrl);
 
-      // Apple Podcasts에서 RSS 찾기
       const feedUrl =
         await this.applePodcastsService.getRssFeedFromSpotify(spotifyUrl);
 
-      // Spotify 쇼 ID 추출
       const showIdMatch = spotifyUrl.match(/show\/([a-zA-Z0-9]+)/);
       const showId = showIdMatch ? showIdMatch[1] : channelInfo.id;
       const fullChannelId = `spotify_${showId}`;
-
-      // DB에 채널 저장
       const channelData = {
         ...channelInfo,
         id: fullChannelId,
@@ -225,8 +219,8 @@ export class ChannelController {
         publisher: channelInfo.author,
         host: channelInfo.author,
         tags: [],
-        videos: [], // Spotify는 에피소드를 DB에 저장하지 않음
-        external_rss_url: feedUrl, // Apple Podcasts RSS URL 저장
+        videos: [],
+        external_rss_url: feedUrl,
       };
 
       await this.channelDbService.addChannel(channelData);
